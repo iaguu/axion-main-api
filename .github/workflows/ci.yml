@@ -1,0 +1,26 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check file formatting
+      run: |
+        find . -type f -name "*.py" -exec python -m py_compile {} \;
+        find . -type f -name "*.js" -exec node -c {} \;
+    
+    - name: Check for sensitive data
+      run: |
+        if grep -r "password\|secret\|token\|key" --include="*.py" --include="*.js" --include="*.json" --exclude-dir=node_modules --exclude-dir=.git .; then
+          echo "Potential sensitive data found!"
+          exit 1
+        fi
