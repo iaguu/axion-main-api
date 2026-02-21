@@ -1,0 +1,454 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AXION Main Panel | api.axionenterprise.cloud</title>
+  <meta name="description" content="Main panel da AXION API com controle por aplicacao, analytics e consumo de endpoints." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --bg-soft: #e8eef7;
+      --panel: #ffffff;
+      --panel-2: #f8fbff;
+      --line: #d3dfef;
+      --text: #0f1e35;
+      --muted: #5c6f8a;
+      --primary: #0ea5e9;
+      --primary-strong: #2563eb;
+      --success: #16a34a;
+      --warn: #f59e0b;
+      --danger: #dc2626;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(1200px 420px at 100% -100px, #d4ebff 0%, transparent 66%),
+        radial-gradient(900px 360px at -100px -80px, #d6f7ee 0%, transparent 68%),
+        var(--bg);
+      color: var(--text);
+      font-family: Manrope, "Segoe UI", sans-serif;
+    }
+    .hidden { display: none !important; }
+
+    .login-shell { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .login-card {
+      width: min(460px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 18px 50px rgba(15, 30, 53, 0.08);
+    }
+    .login-card h1 { margin: 0 0 8px; font-size: 28px; font-family: Sora, Manrope, sans-serif; letter-spacing: -0.02em; }
+    .muted { color: var(--muted); font-size: 13px; }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: linear-gradient(180deg, #fbfdff, #f2f7ff);
+      padding: 18px;
+      overflow: auto;
+    }
+    .brand {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .brand h2 { margin: 0; font-size: 19px; font-family: Sora, Manrope, sans-serif; letter-spacing: -0.02em; }
+    .brand p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+
+    .app-list { display: grid; gap: 10px; }
+    .app-item {
+      width: 100%;
+      text-align: left;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+      transition: all .16s ease;
+    }
+    .app-item:hover { border-color: #98b5dc; transform: translateY(-1px); }
+    .app-item.active { border-color: var(--primary-strong); background: #eaf4ff; }
+    .app-item strong { display: block; font-size: 13px; }
+    .app-item span { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    .content {
+      padding: 18px;
+      overflow: auto;
+    }
+    .tabs {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tab-btn.active {
+      border-color: var(--primary-strong);
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+    }
+    .tab-pane.hidden {
+      display: none !important;
+    }
+    .topbar {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .topbar h1 { margin: 0; font-size: 24px; font-family: Sora, Manrope, sans-serif; letter-spacing: -0.02em; }
+    .topbar p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn:hover { border-color: #99b8e2; }
+    .btn.primary { border: none; color: #fff; background: linear-gradient(135deg, var(--primary), var(--primary-strong)); }
+    .btn.success { border: none; color: #fff; background: var(--success); }
+    .btn.warn { border: none; color: #fff; background: var(--warn); }
+    .btn.danger { border: none; color: #fff; background: var(--danger); }
+
+    .kpi-grid {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .kpi .label { color: var(--muted); font-size: 12px; }
+    .kpi .value { margin-top: 4px; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+
+    .block {
+      margin-top: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .block h3 { margin: 0 0 10px; font-size: 16px; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 12px; }
+
+    .control-row { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 10px; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 10px;
+      padding: 9px 10px;
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+    }
+    textarea { min-height: 92px; resize: vertical; }
+
+    .namespace-list { max-height: 460px; overflow: auto; display: grid; gap: 10px; }
+    details.ns {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-2);
+      padding: 8px;
+    }
+    details.ns summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .ns-body { margin-top: 8px; display: grid; gap: 8px; }
+    .editor-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+    }
+    .editor-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .badge { display: inline-block; border-radius: 999px; font-size: 11px; padding: 2px 8px; }
+    .badge.live { background: #dcfce7; color: #166534; }
+    .badge.draft { background: #fee2e2; color: #991b1b; }
+    .badge.changed { background: #ffedd5; color: #9a3412; }
+
+    .endpoint-layout { display: grid; grid-template-columns: 320px 1fr; gap: 12px; }
+    .endpoint-menu { border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); padding: 8px; max-height: 430px; overflow: auto; }
+    .ep-item {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 10px;
+      text-align: left;
+      padding: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .ep-item.active { border-color: var(--primary-strong); background: #eaf4ff; }
+    .mono { font-family: Consolas, "Courier New", monospace; }
+    .result-box {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #081222;
+      color: #d0ecff;
+      padding: 10px;
+      max-height: 360px;
+      overflow: auto;
+      white-space: pre-wrap;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .audit-table-wrap { overflow: auto; max-height: 340px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { border-bottom: 1px solid #e6edf8; text-align: left; padding: 8px 6px; vertical-align: top; }
+    th { color: var(--muted); font-weight: 700; }
+
+    @media (max-width: 1180px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { border-right: none; border-bottom: 1px solid var(--line); }
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .control-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .endpoint-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .kpi-grid, .control-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="authShell" class="login-shell">
+    <div class="login-card">
+      <h1>AXION Main Panel</h1>
+      <p class="muted" style="margin:0 0 12px">Controle por aplicacao, analytics e console de endpoints.</p>
+      <div style="display:grid; gap:10px">
+        <input id="email" type="email" placeholder="admin@axion.com" />
+        <input id="password" type="password" placeholder="Senha" />
+        <button id="loginBtn" class="btn primary">Entrar</button>
+        <div id="authMsg" class="muted"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="panelShell" class="shell hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>AXION Control Plane</h2>
+        <p>Main panel central de todas as apps AXION.</p>
+      </div>
+      <div class="app-list" id="appList"></div>
+    </aside>
+
+    <main class="content">
+      <section class="topbar">
+        <div>
+          <h1 id="panelTitle">Main Panel</h1>
+          <p id="panelSubtitle">Selecione uma app para controlar analytics, configs e endpoints.</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn" id="refreshBtn">Atualizar</button>
+          <button class="btn" id="syncOriginalBtn">Sincronizar textos originais</button>
+          <button class="btn danger" id="logoutBtn">Sair</button>
+        </div>
+      </section>
+      <section class="tabs">
+        <button class="btn tab-btn active" data-tab="overview">Visao Geral</button>
+        <button class="btn tab-btn" data-tab="config">Configuracoes</button>
+        <button class="btn tab-btn" data-tab="endpoints">Endpoints</button>
+        <button class="btn tab-btn" data-tab="audit">Auditoria</button>
+      </section>
+
+      <section id="pane-overview" class="tab-pane">
+        <section class="kpi-grid" id="kpiGrid"></section>
+        <section class="block">
+          <div class="grid-2">
+            <div>
+              <h3>Filtros Analytics</h3>
+              <div class="control-row" style="margin:0; grid-template-columns: repeat(3, minmax(0, 1fr));">
+                <select id="analyticsDays">
+                  <option value="7">7 dias</option>
+                  <option value="14">14 dias</option>
+                  <option value="30" selected>30 dias</option>
+                  <option value="90">90 dias</option>
+                </select>
+                <select id="analyticsBucket">
+                  <option value="day" selected>bucket dia</option>
+                  <option value="hour">bucket hora</option>
+                </select>
+                <button class="btn" id="exportAnalyticsBtn">Exportar JSON</button>
+              </div>
+            </div>
+            <div>
+              <h3>Status das Apps</h3>
+              <div style="display:flex; gap:8px; flex-wrap:wrap">
+                <button class="btn" id="checkHealthBtn">Checar saude</button>
+                <div id="healthSummary" class="muted">Sem verificacao recente.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="block grid-3">
+          <div>
+            <h3>Eventos (timeseries)</h3>
+            <canvas id="eventsLineChart" height="130"></canvas>
+          </div>
+          <div>
+            <h3>Tipos de evento</h3>
+            <canvas id="eventTypeChart" height="130"></canvas>
+          </div>
+          <div>
+            <h3>Origem</h3>
+            <canvas id="originChart" height="130"></canvas>
+          </div>
+        </section>
+        <section class="block">
+          <h3>Healthcheck das apps mapeadas</h3>
+          <div class="audit-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>App</th>
+                  <th>Status</th>
+                  <th>HTTP</th>
+                  <th>Tempo</th>
+                  <th>URL</th>
+                </tr>
+              </thead>
+              <tbody id="healthTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="pane-config" class="tab-pane hidden">
+        <section class="block">
+          <h3>Edicao inteligente por aplicacao</h3>
+          <div class="control-row">
+            <select id="cfgApp"></select>
+            <select id="cfgEnv">
+              <option value="prod">prod</option>
+              <option value="staging">staging</option>
+              <option value="dev">dev</option>
+            </select>
+            <input id="cfgLocale" value="pt-BR" />
+            <input id="cfgSearch" placeholder="Buscar namespace.chave" />
+          </div>
+          <div class="control-row">
+            <input id="cfgNewNamespace" placeholder="namespace (ex: home.hero)" />
+            <input id="cfgNewKey" placeholder="key (ex: title)" />
+            <input id="cfgNewValue" placeholder="valor novo" />
+            <button class="btn" id="addTextBtn">Adicionar item</button>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px">
+            <button class="btn success" id="saveAllBtn">Salvar alteracoes</button>
+            <button class="btn primary" id="publishBtn">Publicar</button>
+            <input id="rollbackVersion" type="number" placeholder="versao para rollback" style="max-width:220px" />
+            <button class="btn warn" id="rollbackBtn">Rollback</button>
+          </div>
+          <div id="cfgList" class="namespace-list"></div>
+        </section>
+      </section>
+
+      <section id="pane-endpoints" class="tab-pane hidden">
+        <section class="block">
+          <h3>Console de endpoints (consumo real)</h3>
+          <div class="endpoint-layout">
+            <div>
+              <div class="endpoint-menu" id="endpointMenu"></div>
+            </div>
+            <div>
+              <div class="grid-2">
+                <div>
+                  <label class="muted">Endpoint selecionado</label>
+                  <div id="endpointMeta" class="muted" style="margin-top:4px"></div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; align-items:flex-end">
+                  <button class="btn primary" id="runEndpointBtn">Executar endpoint</button>
+                </div>
+              </div>
+              <div class="grid-2" style="margin-top:10px">
+                <div>
+                  <label class="muted">Query JSON</label>
+                  <textarea id="endpointQuery" class="mono" placeholder='{"days": 30}'></textarea>
+                </div>
+                <div>
+                  <label class="muted">Headers JSON</label>
+                  <textarea id="endpointHeaders" class="mono" placeholder='{"authorization":"Bearer ..."}'></textarea>
+                </div>
+              </div>
+              <div style="margin-top:10px">
+                <label class="muted">Body JSON</label>
+                <textarea id="endpointBody" class="mono" placeholder='{"example": true}'></textarea>
+              </div>
+              <div style="margin-top:10px" id="endpointResult" class="result-box">Sem execucao ainda.</div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section id="pane-audit" class="tab-pane hidden">
+        <section class="block">
+          <h3>Auditoria recente</h3>
+          <div class="audit-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Quando</th>
+                  <th>Acao</th>
+                  <th>Actor</th>
+                  <th>Recurso</th>
+                </tr>
+              </thead>
+              <tbody id="auditTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
